@@ -39,7 +39,7 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
         int32_t steps = static_cast<int32_t>(std::abs(move) * 10.0) + 1;
         Vector3 stepVel = step * (1.0 / steps);
 
-        for(int32_t i = 0; i < steps; ++i) {
+        for(int32_t i = 0; i < steps; i++) {
             Vector3 nextPos = aabb.pos + stepVel;
 
             AABB nextAABB{
@@ -69,7 +69,7 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
                         if(solidBlocks.count(blockPos) && blockRotations.count(blockPos)) {
                             BlockModel model = BlockModelHelper::RotateBlockModel(ResourceManager::BlockModelAt(solidBlocks[blockPos]), blockRotations[blockPos]);
 
-                            for(int32_t j = 0; j < model.ColliderCount(); ++j) {
+                            for(int32_t j = 0; j < model.ColliderCount(); j++) {
                                 AABB collider = model.ColliderAt(j);
 
                                 AABB worldCollider{
