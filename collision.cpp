@@ -50,7 +50,7 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
             };
 
             bool collided = false;
-            AABB collidedWith;
+            AABB collidedWith{};
 
             int32_t minX = static_cast<int32_t>(std::floor(nextPos.X()));
             int32_t maxX = static_cast<int32_t>(std::ceil(nextPos.X() + aabb.size.X()));
