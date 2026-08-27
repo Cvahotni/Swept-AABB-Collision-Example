@@ -8,6 +8,7 @@
 #include <chrono>
 #include <atomic>
 #include <mutex>
+#include <shared_mutex>
 #include <filesystem>
 #include <variant>
 #include <condition_variable>
@@ -25,7 +26,9 @@
 #include <unordered_map>
 #include <bitset>
 #include <execution>
+#include <iomanip>
 
+#include <cstdio>
 #include <cstddef>
 #include <cstdint>
 #include <climits>
