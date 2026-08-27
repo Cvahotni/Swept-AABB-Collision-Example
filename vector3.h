@@ -2,12 +2,13 @@
 
 #include "pch.h"
 
-//This class uses GLM for the voxel engine, if you don't want to use it in your project, you can replace 'vector3' with individual double values.
+//This class uses GLM for the voxel engine, if you don't want to use it in your project, you can replace 'Vector3' with individual double values.
 #include "glm/glm.hpp"
 
 class Vector3 {
 public:
     Vector3() : vector3(glm::dvec3(0.0, 0.0, 0.0)) {}
+    Vector3(double value) : vector3(glm::dvec3(value, value, value)) {}
     Vector3(double _x, double _y, double _z) : vector3(glm::dvec3(_x, _y, _z)) {}
 
     void Cross(Vector3& vec1, Vector3& vec2);
@@ -57,7 +58,15 @@ public:
         );
     }
 
-    Vector3 operator+(Vector3& other) const {
+    bool operator!=(Vector3 other) const {
+        return (
+            vector3.x != other.X() ||
+            vector3.y != other.Y() ||
+            vector3.z != other.Z()
+        );
+    }
+
+    Vector3 operator+(Vector3 other) const {
         return {
             vector3.x + other.X(), 
             vector3.y + other.Y(), 
@@ -65,7 +74,7 @@ public:
         };
     }
 
-    Vector3 operator-(Vector3& other) const {
+    Vector3 operator-(Vector3 other) const {
         return {
             vector3.x - other.X(), 
             vector3.y - other.Y(), 
@@ -73,7 +82,7 @@ public:
         };
     }
 
-    Vector3 operator*(Vector3& other) const {
+    Vector3 operator*(Vector3 other) const {
         return {
             vector3.x * other.X(), 
             vector3.y * other.Y(), 
@@ -89,7 +98,7 @@ public:
         };
     }
 
-    Vector3 operator/(Vector3& other) const {
+    Vector3 operator/(Vector3 other) const {
         return {
             vector3.x / other.X(), 
             vector3.y / other.Y(), 
@@ -105,7 +114,7 @@ public:
         };
     }
 
-    Vector3& operator+=(Vector3& other) {
+    Vector3 operator+=(Vector3 other) {
         vector3.x += other.X();
         vector3.y += other.Y();
         vector3.z += other.Z();
@@ -113,7 +122,7 @@ public:
         return *this;
     }
 
-    Vector3& operator-=(Vector3& other) {
+    Vector3 operator-=(Vector3 other) {
         vector3.x -= other.X();
         vector3.y -= other.Y();
         vector3.z -= other.Z();
@@ -121,7 +130,7 @@ public:
         return *this;
     }
 
-    Vector3& operator*=(Vector3& other) {
+    Vector3 operator*=(Vector3 other) {
         vector3.x *= other.X();
         vector3.y *= other.Y();
         vector3.z *= other.Z();
@@ -129,7 +138,7 @@ public:
         return *this;
     }
 
-    Vector3& operator*=(double scalar) {
+    Vector3 operator*=(double scalar) {
         vector3.x *= scalar;
         vector3.y *= scalar;
         vector3.z *= scalar;
@@ -137,7 +146,7 @@ public:
         return *this;
     }
 
-    Vector3& operator/=(Vector3& other) {
+    Vector3 operator/=(Vector3 other) {
         vector3.x /= other.X();
         vector3.y /= other.Y();
         vector3.z /= other.Z();
@@ -145,12 +154,20 @@ public:
         return *this;
     }
 
-    Vector3& operator/=(double divider) {
+    Vector3 operator/=(double divider) {
         vector3.x /= divider;
         vector3.y /= divider;
         vector3.z /= divider;
 
         return *this;
+    }
+
+    Vector3 operator-() const {
+        return Vector3{
+            -vector3.x,
+            -vector3.y,
+            -vector3.z
+        };
     }
 
     double Distance(Vector3 other) {
@@ -167,6 +184,13 @@ public:
         double dZ = std::abs(other.Z() - vector3.z);
 
         return std::sqrt(dX * dX + dY * dY + dZ * dZ);
+    }
+
+    double HorizontalDistance(Vector3 other) {
+        Vector3 first = {vector3.x, 0.0, vector3.z};
+        Vector3 second = {other.X(), 0.0, other.Z()};
+
+        return first.Distance(second);
     }
 
     double Dot(Vector3 normal) {
