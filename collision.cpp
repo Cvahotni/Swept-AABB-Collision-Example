@@ -7,7 +7,7 @@
 //Please see the header file for this class for details on private includes for your project.
 
 Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& solidBlocks, 
-    std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& blockRotations, bool& onGround, bool& onSides) {
+    std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& blockRotations, std::shared_ptr<World> world, bool& onGround, bool& onSides) {
 
     Vector3 pos = aabb.pos;
     Vector3 remainingVel = velocity;
@@ -67,7 +67,18 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
                         Vector3Int blockPos = {x, y, z};
 
                         if(solidBlocks.count(blockPos) && blockRotations.count(blockPos)) {
-                            BlockModel model = BlockModelHelper::RotateBlockModel(ResourceManager::BlockModelAt(solidBlocks[blockPos]), blockRotations[blockPos]);
+                            BlockModel model = BlockModelHelper::RotateBlockModel(
+                                ResourceManager::BlockModelAt(solidBlocks[blockPos]),
+                                blockPos,
+
+                                world->BlockAt(
+                                    static_cast<int32_t>(std::floor(pos.X())) + x, 
+                                    static_cast<int32_t>(std::floor(pos.Y())) + y, 
+                                    static_cast<int32_t>(std::floor(pos.Z())) + z
+                                ),
+
+                                blockRotations[blockPos]
+                            );
 
                             for(int32_t j = 0; j < model.ColliderCount(); j++) {
                                 AABB collider = model.ColliderAt(j);
@@ -177,6 +188,17 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
 }
 
 Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World> world, const int32_t radius, bool& onGround, bool& onSides) {
+    if(radius < 1) {
+        Vector3 finalPosHere = playerAABB.pos;
+        PrimitiveCollisionTest(world, finalPosHere, velocity);
+
+        if(finalPosHere != playerAABB.pos + velocity) {
+            onGround = true;
+        }
+
+        return finalPosHere;
+    }
+
     std::unordered_map<Vector3Int, uint8_t, Vector3IntHash> positions{};
     std::unordered_map<Vector3Int, uint8_t, Vector3IntHash> rotations{};
 
@@ -208,7 +230,18 @@ Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World
                     continue;
                 }
 
-                BlockModel model = BlockModelHelper::RotateBlockModel(ResourceManager::BlockModelAt(state.Model()), BlockID::Rotation(block));
+                BlockModel model = BlockModelHelper::RotateBlockModel(
+                    ResourceManager::BlockModelAt(state.Model()), 
+
+                    {
+                        addedX,
+                        addedY,
+                        addedZ
+                    },
+
+                    world->BlockAt(addedX, addedY, addedZ),
+                    BlockID::Rotation(block)
+                );
 
                 for(auto i = 0; i < model.ColliderCount(); i++) {
                     auto collider = model.ColliderAt(i);
@@ -253,6 +286,7 @@ Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World
 
                                 if(checkAABB.PointIntersects(worldCollider)) {
                                     doSkip = true;
+                                    break;
                                 }
                             }
                         }
@@ -278,10 +312,46 @@ Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World
         }
     }
 
-    return MoveAndCollide(aabb, velocity, positions, rotations, onGround, onSides) + sizeHalf;
+    return MoveAndCollide(aabb, velocity, positions, rotations, world, onGround, onSides) + sizeHalf;
 }
 
 double Collision::SnapToGrid(double value) {
     double precision = 0.01;
     return std::round(value / precision) * precision;
+}
+
+void Collision::PrimitiveCollisionTest(std::shared_ptr<World> world, Vector3& position, Vector3 moveDelta) {
+    Vector3 finalPosition = position + moveDelta;
+
+    uint16_t collisionBlock = world->BlockAt(
+        static_cast<int32_t>(floor(finalPosition.X())),
+        static_cast<int32_t>(floor(finalPosition.Y())),
+        static_cast<int32_t>(floor(finalPosition.Z()))
+    );
+
+    BlockState collisionState = ResourceManager::BlockStateAt(collisionBlock);
+    BlockModel collisionModel = ResourceManager::BlockModelAt(collisionState.Model());
+
+    bool collision = false;
+
+    for(int32_t i = 0; i < collisionModel.ColliderCount(); i++) {
+        auto collider = collisionModel.ColliderAt(i);
+
+        Vector3 testSize = Vector3{0.01, 0.01, 0.01};
+
+        Vector3 min = finalPosition - collider.min;
+        Vector3 max = finalPosition + collider.max;
+    
+        AABB currentAABB = AABB{finalPosition - testSize, finalPosition + testSize};
+        AABB otherAABB = AABB{min, max};
+
+        if(currentAABB.IntersectsAtAll(otherAABB)) {
+            collision = true;
+            break;
+        }
+    }
+
+    if(!collision) {
+        position += moveDelta;
+    }
 }
