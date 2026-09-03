@@ -4,6 +4,7 @@
 
 //This class uses GLM for the voxel engine, if you don't want to use it in your project, you can replace 'Vector3' with individual double values.
 #include "glm/glm.hpp"
+#include "math/vector3int.h"
 
 class Vector3 {
 public:
@@ -128,6 +129,71 @@ public:
         vector3.z -= other.Z();
 
         return *this;
+    }
+
+
+    Vector3 operator+=(Vector3Int other) {
+        vector3.x += static_cast<double>(other.X());
+        vector3.y += static_cast<double>(other.Y());
+        vector3.z += static_cast<double>(other.Z());
+
+        return *this;
+    }
+
+    Vector3 operator-=(Vector3Int other) {
+        vector3.x -= static_cast<double>(other.X());
+        vector3.y -= static_cast<double>(other.Y());
+        vector3.z -= static_cast<double>(other.Z());
+
+        return *this;
+    }
+
+    Vector3 operator*=(Vector3Int other) {
+        vector3.x *= static_cast<double>(other.X());
+        vector3.y *= static_cast<double>(other.Y());
+        vector3.z *= static_cast<double>(other.Z());
+
+        return *this;
+    }
+
+    Vector3 operator/=(Vector3Int other) {
+        vector3.x /= static_cast<double>(other.X());
+        vector3.y /= static_cast<double>(other.Y());
+        vector3.z /= static_cast<double>(other.Z());
+
+        return *this;
+    }
+
+    Vector3 operator+(Vector3Int other) const {
+        return {
+            vector3.x + static_cast<double>(other.X()), 
+            vector3.y + static_cast<double>(other.Y()), 
+            vector3.z + static_cast<double>(other.Z())
+        };
+    }
+
+    Vector3 operator-(Vector3Int other) const {
+        return {
+            vector3.x - static_cast<double>(other.X()), 
+            vector3.y - static_cast<double>(other.Y()), 
+            vector3.z - static_cast<double>(other.Z())
+        };
+    }
+
+    Vector3 operator*(Vector3Int other) const {
+        return {
+            vector3.x * static_cast<double>(other.X()), 
+            vector3.y * static_cast<double>(other.Y()), 
+            vector3.z * static_cast<double>(other.Z())
+        };
+    }
+
+    Vector3 operator/(Vector3Int other) const {
+        return {
+            vector3.x / static_cast<double>(other.X()), 
+            vector3.y / static_cast<double>(other.Y()), 
+            vector3.z / static_cast<double>(other.Z())
+        };
     }
 
     Vector3 operator*=(Vector3 other) {
