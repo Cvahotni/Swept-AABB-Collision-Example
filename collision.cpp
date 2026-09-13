@@ -7,7 +7,7 @@
 //Please see the header file for this class for details on private includes for your project.
 
 Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& solidBlocks, 
-    std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& blockRotations, std::shared_ptr<World> world, bool& onGround, bool& onSides) {
+    std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& blockRotations, std::shared_ptr<World> world, bool& onGround, bool& onSides, Vector3& sideHeight) {
 
     Vector3 pos = aabb.pos;
     Vector3 remainingVel = velocity;
@@ -146,6 +146,7 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
                     }
 
                     remainingVel.SetX(0.0);
+                    sideHeight.SetX(collidedWith.size.Y());
                 } 
                 
                 else if(axis == 1) {
@@ -173,6 +174,7 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
                     }
 
                     remainingVel.SetZ(0.0);
+                    sideHeight.SetZ(collidedWith.size.Y());
                 }
 
                 break;
@@ -187,7 +189,7 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
     return aabb.pos;
 }
 
-Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World> world, const int32_t radius, bool& onGround, bool& onSides) {
+Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World> world, const int32_t radius, bool& onGround, bool& onSides, Vector3& sideHeight) {
     if(radius < 1) {
         Vector3 finalPosHere = playerAABB.pos;
         PrimitiveCollisionTest(world, finalPosHere, velocity);
@@ -312,7 +314,7 @@ Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World
         }
     }
 
-    return MoveAndCollide(aabb, velocity, positions, rotations, world, onGround, onSides) + sizeHalf;
+    return MoveAndCollide(aabb, velocity, positions, rotations, world, onGround, onSides, sideHeight) + sizeHalf;
 }
 
 double Collision::SnapToGrid(double value) {
