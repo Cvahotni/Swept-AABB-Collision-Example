@@ -12,9 +12,9 @@
 class Collision {
 public:
     static Vector3 MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& solidBlocks, 
-        std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& blockRotations, std::shared_ptr<World> world, bool& onGround, bool& onSides);
+        std::unordered_map<Vector3Int, uint8_t, Vector3IntHash>& blockRotations, std::shared_ptr<World> world, bool& onGround, bool& onSides, Vector3& sideHeight);
 
-    static Vector3 Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World> world, const int32_t radius, bool& onGround, bool& onSides);
+    static Vector3 Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World> world, const int32_t radius, bool& onGround, bool& onSides, Vector3& sideHeight);
     static void PrimitiveCollisionTest(std::shared_ptr<World> world, Vector3& position, Vector3 moveDelta);
 
     static double SnapToGrid(double value);
