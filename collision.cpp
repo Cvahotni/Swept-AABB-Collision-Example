@@ -80,8 +80,8 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
                                 blockRotations[blockPos]
                             );
 
-                            for(int32_t j = 0; j < model.ColliderCount(); j++) {
-                                AABB collider = model.ColliderAt(j);
+                            for(int32_t j = 0; j < model.PhysicsColliderCount(); j++) {
+                                AABB collider = model.PhysicsColliderAt(j);
 
                                 AABB worldCollider{
                                     {
@@ -243,8 +243,8 @@ Vector3 Collision::Test(AABB playerAABB, Vector3 velocity, std::shared_ptr<World
                     BlockID::Rotation(block)
                 );
 
-                for(auto i = 0; i < model.ColliderCount(); i++) {
-                    auto collider = model.ColliderAt(i);
+                for(auto i = 0; i < model.PhysicsColliderCount(); i++) {
+                    auto collider = model.PhysicsColliderAt(i);
                     auto amountToSplit = 2;
 
                     bool doSkip = false;
@@ -334,8 +334,8 @@ void Collision::PrimitiveCollisionTest(std::shared_ptr<World> world, Vector3& po
 
     bool collision = false;
 
-    for(int32_t i = 0; i < collisionModel.ColliderCount(); i++) {
-        auto collider = collisionModel.ColliderAt(i);
+    for(int32_t i = 0; i < collisionModel.PhysicsColliderCount(); i++) {
+        auto collider = collisionModel.PhysicsColliderAt(i);
 
         Vector3 testSize = Vector3{0.01, 0.01, 0.01};
 
