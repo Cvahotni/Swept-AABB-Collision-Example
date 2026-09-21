@@ -22,7 +22,7 @@ Vector3 Collision::MoveAndCollide(AABB& aabb, Vector3& velocity, std::unordered_
             continue;
         }
 
-        Vector3 step(0.0, 0.0, 0.0);
+        Vector3 step{};
 
         if(axis == 0) {
             step.SetX(move);
@@ -325,21 +325,23 @@ double Collision::SnapToGrid(double value) {
 void Collision::PrimitiveCollisionTest(std::shared_ptr<World> world, Vector3& position, Vector3 moveDelta) {
     Vector3 finalPosition = position + moveDelta;
 
-    uint16_t collisionBlock = world->BlockAt(
-        static_cast<int32_t>(floor(finalPosition.X())),
-        static_cast<int32_t>(floor(finalPosition.Y())),
-        static_cast<int32_t>(floor(finalPosition.Z()))
-    );
+    Vector3Int blockPosition = {
+        static_cast<int32_t>(std::floor(finalPosition.X())),
+        static_cast<int32_t>(std::floor(finalPosition.Y())),
+        static_cast<int32_t>(std::floor(finalPosition.Z()))
+    };
+
+    uint16_t collisionBlock = world->BlockAtPos(finalPosition);
 
     BlockState collisionState = ResourceManager::BlockStateAt(collisionBlock);
     BlockModel collisionModel = ResourceManager::BlockModelAt(collisionState.Model());
 
+    collisionModel = BlockModelHelper::RotateBlockModel(collisionModel, blockPosition, collisionBlock, BlockID::Rotation(collisionBlock));
     bool collision = false;
 
     for(int32_t i = 0; i < collisionModel.PhysicsColliderCount(); i++) {
         auto collider = collisionModel.PhysicsColliderAt(i);
-
-        Vector3 testSize = Vector3{0.01, 0.01, 0.01};
+        Vector3 testSize = Vector3{0.01};
 
         Vector3 min = finalPosition - collider.min;
         Vector3 max = finalPosition + collider.max;
